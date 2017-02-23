@@ -5263,7 +5263,7 @@ describe('DependencyGraph', function() {
       var dgraph = new DependencyGraph({
         ...defaults,
         roots: [root],
-        extensions: ['jsx', 'coffee'],
+        sourceExts: ['jsx', 'coffee'],
       });
 
       return dgraph.matchFilesByPattern('.*')

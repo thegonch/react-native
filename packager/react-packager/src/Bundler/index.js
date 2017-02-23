@@ -62,6 +62,10 @@ const validateOpts = declareOpts({
     type: 'array',
     required: true,
   },
+  sourceExts: {
+    type: 'array',
+    default: ['js'],
+  },
   blacklistRE: {
     type: 'object', // typeof regex is object
   },
@@ -138,7 +142,8 @@ type Options = {
   projectRoots: Array<string>,
   reporter: Reporter,
   resetCache: boolean,
-  transformModulePath: string,
+  sourceExts: Array<string>,
+  transformModulePath?: string,
   transformTimeoutInterval: ?number,
   watch: boolean,
 };
@@ -215,6 +220,7 @@ class Bundler {
       projectRoots: opts.projectRoots,
       reporter: options.reporter,
       resetCache: opts.resetCache,
+      sourceExts: opts.sourceExts,
       transformCacheKey,
       transformCode:
         (module, code, transformCodeOptions) => this._transformer.transformFile(

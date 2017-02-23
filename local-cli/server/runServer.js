@@ -95,6 +95,7 @@ function getPackagerServer(args, config) {
     platforms: defaultPlatforms.concat(args.platforms),
     projectRoots: args.projectRoots,
     resetCache: args.resetCache,
+    sourceExts: args.sourceExts,
     transformModulePath: transformModulePath,
     verbose: args.verbose,
     watch: !args.nonPersistent,

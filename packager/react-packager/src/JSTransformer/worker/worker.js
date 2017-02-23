@@ -18,7 +18,7 @@ const invariant = require('invariant');
 const minify = require('./minify');
 
 import type {LogEntry} from '../../Logger/Types';
-import type {Ast, SourceMap, TransformOptions} from 'babel-core';
+import {Ast, SourceMap, TransformOptions} from 'babel-core';
 
 function makeTransformParams(filename, sourceCode, options) {
   if (filename.endsWith('.json')) {

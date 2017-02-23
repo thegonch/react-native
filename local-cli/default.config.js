@@ -25,6 +25,10 @@ var config = {
   getProjectConfig: rnpmConfig.getProjectConfig,
   getDependencyConfig: rnpmConfig.getDependencyConfig,
 
+  getSourceExts() {
+    return ['js'];
+  },
+
   /**
    * Specify any additional asset extentions to be used by the packager.
    * For example, if you want to include a .ttf file, you would return ['ttf']

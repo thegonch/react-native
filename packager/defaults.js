@@ -19,6 +19,8 @@ exports.assetExts =  [
 
 exports.moduleSystem = require.resolve('./react-packager/src/Resolver/polyfills/require.js');
 
+exports.sourceExts = ['js'];
+
 exports.platforms = ['ios', 'android', 'windows', 'web'];
 
 exports.polyfills = [

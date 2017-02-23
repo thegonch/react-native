@@ -64,6 +64,10 @@ const validateOpts = declareOpts({
     type: 'string',
     default: 'haste',
   },
+  sourceExts: {
+    type: 'array',
+    default: ['js']
+  },
   polyfillModuleNames: {
     type: 'array',
     default: [],
@@ -212,6 +216,7 @@ class Server {
 
   _opts: {
     projectRoots: Array<string>,
+    sourceExts: Array<string>,
     watch: boolean,
   };
   _projectRoots: Array<string>;
@@ -230,6 +235,7 @@ class Server {
   constructor(options: {
     reporter: Reporter,
     watch?: boolean,
+    sourceExts: Array<string>
   }) {
     const opts = this._opts = validateOpts(options);
     const processFileChange =
@@ -251,6 +257,7 @@ class Server {
     bundlerOpts.allowBundleUpdates = options.watch;
     bundlerOpts.watch = options.watch;
     bundlerOpts.reporter = options.reporter;
+    bundlerOpts.sourceExts = this._opts.sourceExts;
     this._bundler = new Bundler(bundlerOpts);
 
     // changes to the haste map can affect resolution of files in the bundle
