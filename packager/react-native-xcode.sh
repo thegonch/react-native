@@ -85,13 +85,26 @@ fi
 
 BUNDLE_FILE="$DEST/main.jsbundle"
 
-$NODE_BINARY "$REACT_NATIVE_DIR/local-cli/cli.js" bundle \
-  --entry-file "$ENTRY_FILE" \
-  --platform ios \
-  --dev $DEV \
-  --reset-cache \
-  --bundle-output "$BUNDLE_FILE" \
-  --assets-dest "$DEST"
+if [ -n "${RN_CLI_FILE}" ] then
+  $NODE_BINARY "$REACT_NATIVE_DIR/local-cli/cli.js" bundle \
+    --entry-file "$ENTRY_FILE" \
+    --platform ios \
+    --dev $DEV \
+    --reset-cache \
+    --bundle-output "$BUNDLE_FILE" \
+    --assets-dest "$DEST" \
+    --config "$RN_CLI_FILE"
+else
+  $NODE_BINARY "$REACT_NATIVE_DIR/local-cli/cli.js" bundle \
+    --entry-file "$ENTRY_FILE" \
+    --platform ios \
+    --dev $DEV \
+    --reset-cache \
+    --bundle-output "$BUNDLE_FILE" \
+    --assets-dest "$DEST"
+fi
+
+
 
 if [[ ! $DEV && ! -f "$BUNDLE_FILE" ]]; then
   echo "error: File $BUNDLE_FILE does not exist. This must be a bug with" >&2
