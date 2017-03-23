@@ -85,7 +85,7 @@ fi
 
 BUNDLE_FILE="$DEST/main.jsbundle"
 
-if [ -n "${RN_CLI_FILE}" ] then
+if [ -n "${RN_CLI_FILE}" ]; then
   $NODE_BINARY "$REACT_NATIVE_DIR/local-cli/cli.js" bundle \
     --entry-file "$ENTRY_FILE" \
     --platform ios \
