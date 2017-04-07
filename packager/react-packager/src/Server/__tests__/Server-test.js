@@ -12,7 +12,7 @@ jest.disableAutomock();
 
 jest.setMock('worker-farm', function() { return () => {}; })
     .setMock('timers', { setImmediate: (fn) => setTimeout(fn, 0) })
-    .setMock('uglify-js')
+    .setMock('uglify-js-harmony')
     .setMock('crypto')
     .setMock('source-map', { SourceMapConsumer: function(fn) {}})
     .mock('../../Bundler')

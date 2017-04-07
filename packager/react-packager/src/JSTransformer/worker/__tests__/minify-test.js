@@ -18,7 +18,7 @@ const uglify = {
     };
   }),
 };
-jest.setMock('uglify-js', uglify);
+jest.setMock('uglify-js-harmony', uglify);
 
 const minify = require('../minify');
 const {objectContaining} = jasmine;

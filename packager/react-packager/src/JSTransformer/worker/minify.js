@@ -11,7 +11,7 @@
 
 'use strict';
 
-const uglify = require('uglify-js');
+const uglify = require('uglify-js-harmony');
 
 function minify(filename: string, code: string, sourceMap: ?string) {
   const minifyResult = uglify.minify(code, {

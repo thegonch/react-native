@@ -12,7 +12,7 @@ jest.disableAutomock();
 
 jest
   .setMock('worker-farm', () => () => undefined)
-  .setMock('uglify-js')
+  .setMock('uglify-js-harmony')
   .mock('image-size')
   .mock('fs')
   .mock('assert')
