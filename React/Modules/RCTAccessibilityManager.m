@@ -64,7 +64,7 @@ RCT_EXPORT_MODULE()
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didReceiveNewContentSizeCategory:)
                                                  name:UIContentSizeCategoryDidChangeNotification
-                                               object:[UIApplication sharedApplication]];
+                                               object:nil];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didReceiveNewVoiceOverStatus:)
