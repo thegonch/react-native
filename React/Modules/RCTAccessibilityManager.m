@@ -84,7 +84,7 @@ RCT_EXPORT_MODULE()
 
 - (void)didReceiveNewContentSizeCategory:(NSNotification *)note
 {
-  self.contentSizeCategory = note.userInfo[UIContentSizeCategoryNewValueKey];
+  [self setContentSizeCategory: note.userInfo[UIContentSizeCategoryNewValueKey]];
 }
 
 - (void)didReceiveNewVoiceOverStatus:(__unused NSNotification *)notification
