@@ -1,27 +1,27 @@
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  */
 
 package com.facebook.react;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import static com.facebook.systrace.Systrace.TRACE_TAG_REACT_JAVA_BRIDGE;
 
 import com.facebook.react.bridge.ModuleSpec;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactMarker;
+import com.facebook.react.bridge.ReactMarkerConstants;
+import com.facebook.react.module.model.ReactModuleInfo;
 import com.facebook.react.module.model.ReactModuleInfoProvider;
 import com.facebook.react.uimanager.ViewManager;
-import com.facebook.systrace.Systrace;
 import com.facebook.systrace.SystraceMessage;
-
-import static com.facebook.systrace.Systrace.TRACE_TAG_REACT_JAVA_BRIDGE;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * React package supporting lazy creation of native modules.
@@ -37,7 +37,16 @@ public abstract class LazyReactPackage implements ReactPackage {
       reactModuleInfoProviderClass = Class.forName(
           lazyReactPackage.getClass().getCanonicalName() + "$$ReactModuleInfoProvider");
     } catch (ClassNotFoundException e) {
-      throw new RuntimeException(e);
+      // In OSS case, when the annotation processor does not run, we fall back to non-lazy mode
+      // For this, we simply return an empty moduleMap.
+      // NativeModuleRegistryBuilder will eagerly get all the modules, and get the info from the
+      // modules directly
+      return new ReactModuleInfoProvider() {
+        @Override
+        public Map<String, ReactModuleInfo> getReactModuleInfos() {
+          return Collections.emptyMap();
+        }
+      };
     }
 
     if (reactModuleInfoProviderClass == null) {
@@ -69,14 +78,20 @@ public abstract class LazyReactPackage implements ReactPackage {
   public final List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
     List<NativeModule> modules = new ArrayList<>();
     for (ModuleSpec holder : getNativeModules(reactContext)) {
+      NativeModule nativeModule;
       SystraceMessage.beginSection(TRACE_TAG_REACT_JAVA_BRIDGE, "createNativeModule")
         .arg("module", holder.getType())
         .flush();
+      ReactMarker.logMarker(
+        ReactMarkerConstants.CREATE_MODULE_START,
+        holder.getClassName());
       try {
-        modules.add(holder.getProvider().get());
+        nativeModule = holder.getProvider().get();
       } finally {
-        Systrace.endSection(TRACE_TAG_REACT_JAVA_BRIDGE);
+        ReactMarker.logMarker(ReactMarkerConstants.CREATE_MODULE_END);
+        SystraceMessage.endSection(TRACE_TAG_REACT_JAVA_BRIDGE).flush();
       }
+      modules.add(nativeModule);
     }
     return modules;
   }

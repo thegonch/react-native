@@ -1,10 +1,8 @@
 /*
- *  Copyright (c) 2013, Facebook, Inc.
- *  All rights reserved.
+ * Copyright (c) 2013-present, Facebook, Inc.
  *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant
- *  of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  */
 
@@ -15,7 +13,6 @@
 
 #import <React/RCTConvert.h>
 #import <React/RCTImageStoreManager.h>
-#import <React/RCTLog.h>
 #import <React/RCTRootView.h>
 #import <React/RCTUtils.h>
 
@@ -126,7 +123,7 @@ didFinishPickingMediaWithInfo:(NSDictionary<NSString *, id> *)info
   // WARNING: Using ImageStoreManager may cause a memory leak because the
   // image isn't automatically removed from store once we're done using it.
   [_bridge.imageStoreManager storeImage:originalImage withBlock:^(NSString *tempImageTag) {
-    [self _dismissPicker:picker args:tempImageTag ? @[tempImageTag, height, width] : nil];
+    [self _dismissPicker:picker args:tempImageTag ? @[tempImageTag, RCTNullIfNil(height), RCTNullIfNil(width)] : nil];
   }];
 }
 
@@ -156,6 +153,11 @@ didFinishPickingMediaWithInfo:(NSDictionary<NSString *, id> *)info
 - (void)_dismissPicker:(UIImagePickerController *)picker args:(NSArray *)args
 {
   NSUInteger index = [_pickers indexOfObject:picker];
+  if (index == NSNotFound) {
+    // This happens if the user selects multiple items in succession.
+    return;
+  }
+
   RCTResponseSenderBlock successCallback = _pickerCallbacks[index];
   RCTResponseSenderBlock cancelCallback = _pickerCancelCallbacks[index];
 

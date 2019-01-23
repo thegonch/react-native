@@ -1,4 +1,7 @@
-// Copyright 2004-present Facebook. All Rights Reserved.
+// Copyright (c) 2004-present, Facebook, Inc.
+
+// This source code is licensed under the MIT license found in the
+// LICENSE file in the root directory of this source tree.
 
 package com.facebook.react.module.model;
 
@@ -6,41 +9,43 @@ package com.facebook.react.module.model;
  * Data holder class holding native module specifications. {@link ReactModuleSpecProcessor} creates
  * these so Java modules don't have to be instantiated at React Native start up.
  */
-public class ReactModuleInfo implements Info {
+public class ReactModuleInfo {
 
   private final String mName;
   private final boolean mCanOverrideExistingModule;
-  private final boolean mSupportsWebWorkers;
   private final boolean mNeedsEagerInit;
+  private final boolean mHasConstants;
+  private final boolean mIsCxxModule;
 
   public ReactModuleInfo(
     String name,
     boolean canOverrideExistingModule,
-    boolean supportsWebWorkers,
-    boolean needsEagerInit) {
+    boolean needsEagerInit,
+    boolean hasConstants,
+    boolean isCxxModule) {
     mName = name;
     mCanOverrideExistingModule = canOverrideExistingModule;
-    mSupportsWebWorkers = supportsWebWorkers;
     mNeedsEagerInit = needsEagerInit;
+    mHasConstants = hasConstants;
+    mIsCxxModule = isCxxModule;
   }
 
-  @Override
   public String name() {
     return mName;
   }
 
-  @Override
   public boolean canOverrideExistingModule() {
     return mCanOverrideExistingModule;
   }
 
-  @Override
-  public boolean supportsWebWorkers() {
-    return mSupportsWebWorkers;
-  }
-
-  @Override
   public boolean needsEagerInit() {
     return mNeedsEagerInit;
   }
+
+  public boolean hasConstants() {
+    return mHasConstants;
+  }
+
+  public boolean isCxxModule() {return mIsCxxModule; }
+
 }

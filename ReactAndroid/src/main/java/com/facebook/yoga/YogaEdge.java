@@ -1,12 +1,10 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- * All rights reserved.
+/*
+ *  Copyright (c) 2014-present, Facebook, Inc.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ *  This source code is licensed under the MIT license found in the LICENSE
+ *  file in the root directory of this source tree.
+ *
  */
-
 package com.facebook.yoga;
 
 import com.facebook.proguard.annotations.DoNotStrip;
@@ -23,7 +21,7 @@ public enum YogaEdge {
   VERTICAL(7),
   ALL(8);
 
-  private int mIntValue;
+  private final int mIntValue;
 
   YogaEdge(int intValue) {
     mIntValue = intValue;
@@ -44,7 +42,7 @@ public enum YogaEdge {
       case 6: return HORIZONTAL;
       case 7: return VERTICAL;
       case 8: return ALL;
-      default: throw new IllegalArgumentException("Unkown enum value: " + value);
+      default: throw new IllegalArgumentException("Unknown enum value: " + value);
     }
   }
 }

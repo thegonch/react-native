@@ -1,12 +1,10 @@
-/**
- * Copyright (c) 2014-present, Facebook, Inc.
- * All rights reserved.
+/*
+ *  Copyright (c) 2014-present, Facebook, Inc.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ *  This source code is licensed under the MIT license found in the LICENSE
+ *  file in the root directory of this source tree.
+ *
  */
-
 package com.facebook.yoga;
 
 import com.facebook.proguard.annotations.DoNotStrip;
@@ -17,9 +15,10 @@ public enum YogaJustify {
   CENTER(1),
   FLEX_END(2),
   SPACE_BETWEEN(3),
-  SPACE_AROUND(4);
+  SPACE_AROUND(4),
+  SPACE_EVENLY(5);
 
-  private int mIntValue;
+  private final int mIntValue;
 
   YogaJustify(int intValue) {
     mIntValue = intValue;
@@ -36,7 +35,9 @@ public enum YogaJustify {
       case 2: return FLEX_END;
       case 3: return SPACE_BETWEEN;
       case 4: return SPACE_AROUND;
-      default: throw new IllegalArgumentException("Unkown enum value: " + value);
+      case 5:
+        return SPACE_EVENLY;
+      default: throw new IllegalArgumentException("Unknown enum value: " + value);
     }
   }
 }

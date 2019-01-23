@@ -1,4 +1,7 @@
-// Copyright 2004-present Facebook. All Rights Reserved.
+// Copyright (c) 2004-present, Facebook, Inc.
+
+// This source code is licensed under the MIT license found in the
+// LICENSE file in the root directory of this source tree.
 
 #pragma once
 
@@ -8,7 +11,6 @@
 
 namespace facebook {
 namespace react {
-namespace detail {
 
 /**
  * RecoverableError
@@ -18,7 +20,7 @@ namespace detail {
 struct RecoverableError : public std::exception {
 
   explicit RecoverableError(const std::string &what_)
-    : m_what {what_}
+    : m_what { "facebook::react::Recoverable: " + what_ }
   {}
 
   virtual const char* what() const throw() override { return m_what.c_str(); }
@@ -42,6 +44,5 @@ private:
   std::string m_what;
 };
 
-} // namespace detail
 } // namespace react
 } // namespace facebook

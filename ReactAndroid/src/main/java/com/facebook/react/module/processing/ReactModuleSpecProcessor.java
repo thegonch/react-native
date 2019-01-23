@@ -1,7 +1,11 @@
-// Copyright 2004-present Facebook. All Rights Reserved.
+// Copyright (c) 2004-present, Facebook, Inc.
+
+// This source code is licensed under the MIT license found in the
+// LICENSE file in the root directory of this source tree.
 
 package com.facebook.react.module.processing;
 
+import com.facebook.react.bridge.CxxModuleWrapper;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
@@ -10,15 +14,20 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypesException;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.stream.Stream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,9 +61,10 @@ import static javax.tools.Diagnostic.Kind.ERROR;
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class ReactModuleSpecProcessor extends AbstractProcessor {
 
+  private static final TypeName COLLECTIONS_TYPE = ParameterizedTypeName.get(Collections.class);
   private static final TypeName MAP_TYPE = ParameterizedTypeName.get(
     Map.class,
-    Class.class,
+    String.class,
     ReactModuleInfo.class);
   private static final TypeName INSTANTIATED_MAP_TYPE = ParameterizedTypeName.get(HashMap.class);
 
@@ -64,6 +74,7 @@ public class ReactModuleSpecProcessor extends AbstractProcessor {
   private Elements mElements;
   @SuppressFieldNotInitialized
   private Messager mMessager;
+  private Types mTypes;
 
   @Override
   public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -72,6 +83,7 @@ public class ReactModuleSpecProcessor extends AbstractProcessor {
     mFiler = processingEnv.getFiler();
     mElements = processingEnv.getElementUtils();
     mMessager = processingEnv.getMessager();
+    mTypes = processingEnv.getTypeUtils();
   }
 
   @Override
@@ -79,15 +91,24 @@ public class ReactModuleSpecProcessor extends AbstractProcessor {
     Set<? extends Element> reactModuleListElements = roundEnv.getElementsAnnotatedWith(
       ReactModuleList.class);
     for (Element reactModuleListElement : reactModuleListElements) {
+      if (!(reactModuleListElement instanceof TypeElement)) {
+        continue;
+      }
+
       TypeElement typeElement = (TypeElement) reactModuleListElement;
+      ReactModuleList reactModuleList = typeElement.getAnnotation(ReactModuleList.class);
+
+      if (reactModuleList == null) {
+        continue;
+      }
+
       ClassName className = ClassName.get(typeElement);
       String packageName = ClassName.get(typeElement).packageName();
       String fileName = className.simpleName();
 
-      ReactModuleList reactModuleList = typeElement.getAnnotation(ReactModuleList.class);
       List<String> nativeModules = new ArrayList<>();
       try {
-        reactModuleList.javaModules(); // throws MirroredTypesException
+        reactModuleList.nativeModules(); // throws MirroredTypesException
       } catch (MirroredTypesException mirroredTypesException) {
         List<? extends TypeMirror> typeMirrors = mirroredTypesException.getTypeMirrors();
         for (TypeMirror typeMirror : typeMirrors) {
@@ -133,30 +154,54 @@ public class ReactModuleSpecProcessor extends AbstractProcessor {
     throws ReactModuleSpecException {
     CodeBlock.Builder builder = CodeBlock.builder();
     if (nativeModules == null || nativeModules.isEmpty()) {
-      builder.addStatement("return Collections.emptyMap()");
+      builder.addStatement("return $T.emptyMap()", COLLECTIONS_TYPE);
     } else {
       builder.addStatement("$T map = new $T()", MAP_TYPE, INSTANTIATED_MAP_TYPE);
 
+      TypeMirror cxxModuleWrapperTypeMirror = mElements.getTypeElement(CxxModuleWrapper.class.getName()).asType();
+
       for (String nativeModule : nativeModules) {
-        String keyString = nativeModule + ".class";
+        String keyString = nativeModule;
 
         TypeElement typeElement = mElements.getTypeElement(nativeModule);
+        if (typeElement == null) {
+          throw new ReactModuleSpecException(
+            keyString + " not found by ReactModuleSpecProcessor. " +
+            "Did you misspell the module?");
+        }
+
         ReactModule reactModule = typeElement.getAnnotation(ReactModule.class);
         if (reactModule == null) {
           throw new ReactModuleSpecException(
             keyString + " not found by ReactModuleSpecProcessor. " +
-            "Did you forget to add the @ReactModule annotation the the native module?");
+            "Did you forget to add the @ReactModule annotation to the native module?");
         }
+
+        List<? extends Element> elements = typeElement.getEnclosedElements();
+        boolean hasConstants = false;
+        if (elements != null) {
+          hasConstants =
+              elements
+                  .stream()
+                  .filter(element -> element.getKind() == ElementKind.METHOD)
+                  .map(Element::getSimpleName)
+                  .anyMatch(
+                      name -> name.contentEquals("getConstants") || name.contentEquals("getTypedExportedConstants"));
+        }
+
+        boolean isCxxModule = mTypes.isAssignable(typeElement.asType(), cxxModuleWrapperTypeMirror);
+
         String valueString = new StringBuilder()
           .append("new ReactModuleInfo(")
           .append("\"").append(reactModule.name()).append("\"").append(", ")
           .append(reactModule.canOverrideExistingModule()).append(", ")
-          .append(reactModule.supportsWebWorkers()).append(", ")
-          .append(reactModule.needsEagerInit())
+          .append(reactModule.needsEagerInit()).append(", ")
+          .append(hasConstants).append(", ")
+          .append(isCxxModule)
           .append(")")
           .toString();
 
-        builder.addStatement("map.put(" + keyString + ", " + valueString + ")");
+        builder.addStatement("map.put(\"" + keyString + "\", " + valueString + ")");
       }
       builder.addStatement("return map");
     }

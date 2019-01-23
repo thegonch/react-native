@@ -1,18 +1,12 @@
-// Copyright 2004-present Facebook. All Rights Reserved.
+// Copyright (c) 2004-present, Facebook, Inc.
 
-#ifdef WITH_JSC_EXTRA_TRACING
+// This source code is licensed under the MIT license found in the
+// LICENSE file in the root directory of this source tree.
 
 #include "JSCSamplingProfiler.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <JavaScriptCore/API/JSProfilerPrivate.h>
 #include <jschelpers/JSCHelpers.h>
-#include <jschelpers/Value.h>
 
-namespace facebook {
-namespace react {
-namespace {
 static JSValueRef pokeSamplingProfiler(
     JSContextRef ctx,
     JSObjectRef function,
@@ -22,14 +16,16 @@ static JSValueRef pokeSamplingProfiler(
     JSValueRef* exception) {
   return JSC_JSPokeSamplingProfiler(ctx);
 }
-}
+
+namespace facebook {
+namespace react {
 
 void initSamplingProfilerOnMainJSCThread(JSGlobalContextRef ctx) {
   JSC_JSStartSamplingProfilingOnMainJSCThread(ctx);
+
+  // Allow the profiler to be poked from JS as well
+  // (see SamplingProfiler.js for an example of how it could be used with the JSCSamplingProfiler module).
   installGlobalFunction(ctx, "pokeSamplingProfiler", pokeSamplingProfiler);
 }
 
-}
-}
-
-#endif // WITH_JSC_EXTRA_TRACING
+} }

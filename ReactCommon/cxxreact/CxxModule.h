@@ -1,19 +1,29 @@
-// Copyright 2004-present Facebook. All Rights Reserved.
+// Copyright (c) 2004-present, Facebook, Inc.
 
-#ifndef FBXPLATMODULE
-#define FBXPLATMODULE
+// This source code is licensed under the MIT license found in the
+// LICENSE file in the root directory of this source tree.
 
-#include <folly/dynamic.h>
+#pragma once
 
 #include <functional>
-
 #include <map>
 #include <tuple>
 #include <vector>
 
+#include <folly/dynamic.h>
+
 using namespace std::placeholders;
 
-namespace facebook { namespace xplat { namespace module {
+namespace facebook {
+namespace react {
+
+class Instance;
+
+}}
+
+namespace facebook {
+namespace xplat {
+namespace module {
 
 /**
  * Base class for Catalyst native modules whose implementations are
@@ -46,6 +56,8 @@ class CxxModule {
   class SyncTagType {};
 
 public:
+  typedef std::function<std::unique_ptr<CxxModule>()> Provider;
+
   typedef std::function<void(std::vector<folly::dynamic>)> Callback;
 
   constexpr static AsyncTagType AsyncTag = AsyncTagType();
@@ -58,6 +70,11 @@ public:
     std::function<void(folly::dynamic, Callback, Callback)> func;
 
     std::function<folly::dynamic(folly::dynamic)> syncFunc;
+
+    const char *getType() {
+      assert(func || syncFunc);
+      return func ? (callbacks == 2 ? "promise" : "async") : "sync";
+    }
 
     // std::function/lambda ctors
 
@@ -151,14 +168,32 @@ public:
    * Each entry in the map will be exported as a property to JS.  The
    * key is the property name, and the value can be anything.
    */
-  virtual auto getConstants() -> std::map<std::string, folly::dynamic> = 0;
+  virtual auto getConstants() -> std::map<std::string, folly::dynamic> { return {}; };
 
   /**
    * @return a list of methods this module exports to JS.
    */
   virtual auto getMethods() -> std::vector<Method> = 0;
+
+  /**
+   *  Called during the construction of CxxNativeModule.
+   */
+  void setInstance(std::weak_ptr<react::Instance> instance) {
+    instance_ = instance;
+  }
+
+  /**
+   * @return a weak_ptr to the current instance of the bridge.
+   * When used with CxxNativeModule, this gives Cxx modules access to functions
+   * such as `callJSFunction`, allowing them to communicate back to JS outside
+   * of the regular callbacks.
+   */
+  std::weak_ptr<react::Instance> getInstance() {
+    return instance_;
+  }
+
+private:
+  std::weak_ptr<react::Instance> instance_;
 };
 
 }}}
-
-#endif

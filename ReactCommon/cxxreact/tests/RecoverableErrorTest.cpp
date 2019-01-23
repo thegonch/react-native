@@ -1,4 +1,7 @@
-// Copyright 2004-present Facebook. All Rights Reserved.
+// Copyright (c) 2004-present, Facebook, Inc.
+
+// This source code is licensed under the MIT license found in the
+// LICENSE file in the root directory of this source tree.
 
 #include <gtest/gtest.h>
 
@@ -7,7 +10,7 @@
 
 #include <cxxreact/RecoverableError.h>
 
-using namespace facebook::react::detail;
+using namespace facebook::react;
 
 TEST(RecoverableError, RunRethrowingAsRecoverableRecoverTest) {
   try {
@@ -16,7 +19,7 @@ TEST(RecoverableError, RunRethrowingAsRecoverableRecoverTest) {
       });
     FAIL() << "Unthrown exception";
   } catch (const RecoverableError &err) {
-    ASSERT_STREQ(err.what(), "catch me");
+    ASSERT_STREQ(err.what(), "facebook::react::Recoverable: catch me");
   } catch (...) {
     FAIL() << "Uncaught exception";
   }

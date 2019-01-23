@@ -1,22 +1,22 @@
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule Animated
- * @flow
+ * @flow strict-local
+ * @format
  */
+
 'use strict';
 
-
-var AnimatedImplementation = require('AnimatedImplementation');
-var Image = require('Image');
-var Text = require('Text');
-var View = require('View');
-var ScrollView = require('ScrollView');
+const AnimatedImplementation = require('AnimatedImplementation');
+const FlatList = require('FlatList');
+const Image = require('Image');
+const ScrollView = require('ScrollView');
+const SectionList = require('SectionList');
+const Text = require('Text');
+const View = require('View');
 
 module.exports = {
   ...AnimatedImplementation,
@@ -24,4 +24,6 @@ module.exports = {
   Text: AnimatedImplementation.createAnimatedComponent(Text),
   Image: AnimatedImplementation.createAnimatedComponent(Image),
   ScrollView: AnimatedImplementation.createAnimatedComponent(ScrollView),
+  FlatList: AnimatedImplementation.createAnimatedComponent(FlatList),
+  SectionList: AnimatedImplementation.createAnimatedComponent(SectionList),
 };

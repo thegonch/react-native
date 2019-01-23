@@ -1,16 +1,15 @@
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  */
 
 #import <Foundation/Foundation.h>
 
 #import <React/RCTAssert.h>
 #import <React/RCTDefines.h>
+#import <React/RCTUtils.h>
 
 #ifndef RCTLOG_ENABLED
 #define RCTLOG_ENABLED 1
@@ -31,6 +30,7 @@
 #define RCTLog(...) _RCTLog(RCTLogLevelInfo, __VA_ARGS__)
 #define RCTLogTrace(...) _RCTLog(RCTLogLevelTrace, __VA_ARGS__)
 #define RCTLogInfo(...) _RCTLog(RCTLogLevelInfo, __VA_ARGS__)
+#define RCTLogAdvice(string, ...) RCTLogWarn([@"(ADVICE) " stringByAppendingString:(NSString *)string], __VA_ARGS__)
 #define RCTLogWarn(...) _RCTLog(RCTLogLevelWarning, __VA_ARGS__)
 #define RCTLogError(...) _RCTLog(RCTLogLevelError, __VA_ARGS__)
 
